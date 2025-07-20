@@ -50,7 +50,23 @@ npx nx g @nx/nest:app demo
 To generate a new library, use:
 
 ```sh
+# Generate a NestJS library (recommended for this workspace)
+npx nx g @nx/nest:library --name=my-nestjs-lib --directory=libs/my-nestjs-lib --unitTestRunner=jest --no-interactive
+
+# Generate a Node.js library (for general TypeScript utilities)
 npx nx g @nx/node:lib mylib
+```
+
+**NestJS Library Examples:**
+```sh
+# Basic NestJS library
+npx nx generate @nx/nest:library --name=shared-utils --directory=libs/shared-utils --unitTestRunner=jest --no-interactive
+
+# Library with service included
+npx nx generate @nx/nest:library --name=auth-lib --directory=libs/auth-lib --service=true --unitTestRunner=jest --no-interactive
+
+# Buildable library (can be built independently)
+npx nx generate @nx/nest:library --name=api-client --directory=libs/api-client --buildable=true --unitTestRunner=jest --no-interactive
 ```
 
 You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
@@ -130,6 +146,27 @@ npx nx generate @nx/nest:controller --path=apps/jobber-auth/src/app/controller-n
 # Generate a NestJS resolver (for GraphQL)
 npx nx generate @nx/nest:resolver --path=apps/jobber-auth/src/app/resolver-name/resolver-name --no-interactive
 ```
+
+### NestJS Libraries
+
+Create reusable NestJS libraries for shared functionality:
+
+```sh
+# Create a new NestJS library
+npx nx generate @nx/nest:library --name=nestjs --directory=libs/nestjs --unitTestRunner=jest --no-interactive
+
+# Test the library
+nx test nestjs
+
+# Import the library in your app
+import { NestjsModule } from '@jobber/nestjs';
+```
+
+**Library Features:**
+- **Shared modules**: Create reusable NestJS modules across applications
+- **Type-safe imports**: Import path `@jobber/nestjs` is automatically configured
+- **Jest testing**: Unit tests are set up automatically
+- **TypeScript support**: Full TypeScript integration with strict mode
 
 ## GraphQL API
 
@@ -215,3 +252,5 @@ The project includes automatic type generation as a build dependency:
 - Always generate types after schema changes to keep TypeScript definitions up to date
 - Use `--no-interactive` flag with generators for automation in scripts
 - GraphQL playground will be available at `/graphql` endpoint in development mode
+- Libraries are created in the `libs/` directory and use import paths like `@jobber/library-name`
+- Run `nx test <library-name>` to test libraries independently
