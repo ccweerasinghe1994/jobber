@@ -160,6 +160,30 @@ npx nx generate @nx/nest:resolver --path=apps/jobber-auth/src/app/users/users --
 npx nx generate @nx/nest:service --path=apps/jobber-auth/src/app/users/users --no-interactive
 ```
 
+### GraphQL Configuration
+
+The GraphQL module is configured in `apps/jobber-auth/src/app/app.module.ts` with:
+
+```typescript
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+
+@Module({
+  imports: [
+    PrismaModule,
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      autoSchemaFile: true,
+      driver: ApolloDriver
+    })
+  ],
+})
+export class AppModule {}
+```
+
+**Configuration Options:**
+- `autoSchemaFile: true` - Automatically generates GraphQL schema from TypeScript decorators
+- `driver: ApolloDriver` - Uses Apollo Server as the GraphQL server implementation
+
 ### GraphQL Features
 
 - **Code-first approach**: Define your GraphQL schema using TypeScript decorators
