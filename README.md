@@ -126,7 +126,46 @@ npx nx generate @nx/nest:service --path=apps/jobber-auth/src/app/service-name/se
 
 # Generate a NestJS controller
 npx nx generate @nx/nest:controller --path=apps/jobber-auth/src/app/controller-name/controller-name --no-interactive
+
+# Generate a NestJS resolver (for GraphQL)
+npx nx generate @nx/nest:resolver --path=apps/jobber-auth/src/app/resolver-name/resolver-name --no-interactive
 ```
+
+## GraphQL API
+
+This project includes GraphQL API capabilities using Apollo Server and NestJS GraphQL integration:
+
+### Installation
+
+To install the GraphQL dependencies, run:
+
+```sh
+npm i @nestjs/graphql @nestjs/apollo @apollo/server graphql
+```
+
+### Dependencies Added
+
+- **@apollo/server**: Apollo Server for GraphQL
+- **@nestjs/apollo**: NestJS Apollo Server integration
+- **@nestjs/graphql**: NestJS GraphQL module
+- **graphql**: GraphQL implementation
+
+### GraphQL Development
+
+```sh
+# Generate GraphQL resolvers
+npx nx generate @nx/nest:resolver --path=apps/jobber-auth/src/app/users/users --no-interactive
+
+# Generate GraphQL services for resolvers
+npx nx generate @nx/nest:service --path=apps/jobber-auth/src/app/users/users --no-interactive
+```
+
+### GraphQL Features
+
+- **Code-first approach**: Define your GraphQL schema using TypeScript decorators
+- **Type safety**: Automatic TypeScript type generation
+- **Apollo Server integration**: Production-ready GraphQL server
+- **Subscription support**: Real-time GraphQL subscriptions
 
 ### Prisma Commands Reference
 
@@ -151,3 +190,4 @@ The project includes automatic type generation as a build dependency:
 - Migration names should be descriptive and use lowercase with underscores
 - Always generate types after schema changes to keep TypeScript definitions up to date
 - Use `--no-interactive` flag with generators for automation in scripts
+- GraphQL playground will be available at `/graphql` endpoint in development mode
