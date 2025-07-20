@@ -80,3 +80,74 @@ And join the Nx community:
 - [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
 - [Our Youtube channel](https://www.youtube.com/@nxdevtools)
 - [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+
+## Prisma Tasks
+
+This project uses Prisma as the ORM for database management. The following Nx targets are available for Prisma operations:
+
+### Database Migration
+
+Create and run a new database migration:
+
+```sh
+nx run jobber-auth:migrate-prisma --name="migration_name"
+```
+
+Examples:
+```sh
+# Initial database setup
+nx run jobber-auth:migrate-prisma --name="init"
+
+# Add new tables
+nx run jobber-auth:migrate-prisma --name="add_user_table"
+
+# Schema updates
+nx run jobber-auth:migrate-prisma --name="update_auth_schema"
+```
+
+### Generate Types
+
+Generate Prisma client types (run after schema changes):
+
+```sh
+nx run jobber-auth:generate-types
+```
+
+### NestJS Code Generation
+
+Generate NestJS modules, services, and other components using Nx generators:
+
+```sh
+# Generate a NestJS module
+npx nx generate @nx/nest:module --path=apps/jobber-auth/src/app/module-name/module-name --no-interactive
+
+# Generate a NestJS service
+npx nx generate @nx/nest:service --path=apps/jobber-auth/src/app/service-name/service-name --no-interactive
+
+# Generate a NestJS controller
+npx nx generate @nx/nest:controller --path=apps/jobber-auth/src/app/controller-name/controller-name --no-interactive
+```
+
+### Prisma Commands Reference
+
+- **migrate-prisma**: Creates and applies a new migration with the specified name
+- **generate-types**: Generates TypeScript types from your Prisma schema
+
+### Database Setup
+
+1. Ensure your database connection is configured in `apps/jobber-auth/prisma/schema.prisma`
+2. Run the initial migration: `nx run jobber-auth:migrate-prisma --name="init"`
+3. Generate types: `nx run jobber-auth:generate-types`
+
+### Project Configuration
+
+The project includes automatic type generation as a build dependency:
+- The `build` target depends on `generate-types`
+- This ensures Prisma client types are always up-to-date before building
+
+### Notes
+
+- All Prisma commands run in the `apps/jobber-auth` directory context
+- Migration names should be descriptive and use lowercase with underscores
+- Always generate types after schema changes to keep TypeScript definitions up to date
+- Use `--no-interactive` flag with generators for automation in scripts
