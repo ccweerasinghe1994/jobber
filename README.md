@@ -158,15 +158,18 @@ npx nx generate @nx/nest:library --name=nestjs --directory=libs/nestjs --unitTes
 # Test the library
 nx test nestjs
 
-# Import the library in your app
-import { NestjsModule } from '@jobber/nestjs';
+# Import GraphQL components from the library
+import { AbstractModel } from '@jobber/nestjs';
 ```
 
 **Library Features:**
-- **Shared modules**: Create reusable NestJS modules across applications
+- **Shared GraphQL models**: Base classes like `AbstractModel` for consistent entity structure
 - **Type-safe imports**: Import path `@jobber/nestjs` is automatically configured
 - **Jest testing**: Unit tests are set up automatically
-- **TypeScript support**: Full TypeScript integration with strict mode
+- **GraphQL decorators**: Ready-to-use GraphQL field decorators and object types
+
+**Available GraphQL Components:**
+- `AbstractModel`: Base model class with ID field for GraphQL entities
 
 ## GraphQL API
 
@@ -195,6 +198,22 @@ npx nx generate @nx/nest:resolver --path=apps/jobber-auth/src/app/users/users --
 
 # Generate GraphQL services for resolvers
 npx nx generate @nx/nest:service --path=apps/jobber-auth/src/app/users/users --no-interactive
+```
+
+**Using Shared GraphQL Components:**
+```typescript
+// Import base model from the shared library
+import { AbstractModel } from '@jobber/nestjs';
+
+// Extend the base model in your GraphQL entities
+@ObjectType()
+export class User extends AbstractModel {
+  @Field()
+  email: string;
+
+  @Field()
+  username: string;
+}
 ```
 
 ### GraphQL Configuration
@@ -227,6 +246,7 @@ export class AppModule {}
 - **Type safety**: Automatic TypeScript type generation
 - **Apollo Server integration**: Production-ready GraphQL server
 - **Subscription support**: Real-time GraphQL subscriptions
+- **Shared base models**: Use `AbstractModel` from `@jobber/nestjs` for consistent entity structure
 
 ### Prisma Commands Reference
 
