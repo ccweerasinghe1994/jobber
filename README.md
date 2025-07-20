@@ -147,6 +147,17 @@ npx nx generate @nx/nest:controller --path=apps/jobber-auth/src/app/controller-n
 npx nx generate @nx/nest:resolver --path=apps/jobber-auth/src/app/resolver-name/resolver-name --no-interactive
 ```
 
+**Example: Complete User Module Generation**
+```sh
+# Generate all components for a users module
+nx g @nx/nest:module --path=apps/jobber-auth/src/app/users/users
+nx g @nx/nest:service --path=apps/jobber-auth/src/app/users/users  
+nx g @nx/nest:resolver --path=apps/jobber-auth/src/app/users/users
+
+# Then create your GraphQL model extending AbstractModel
+# File: apps/jobber-auth/src/app/users/models/users.model.ts
+```
+
 ### NestJS Libraries
 
 Create reusable NestJS libraries for shared functionality:
@@ -198,14 +209,25 @@ npx nx generate @nx/nest:resolver --path=apps/jobber-auth/src/app/users/users --
 
 # Generate GraphQL services for resolvers
 npx nx generate @nx/nest:service --path=apps/jobber-auth/src/app/users/users --no-interactive
+
+# Generate NestJS modules for organizing GraphQL components
+npx nx generate @nx/nest:module --path=apps/jobber-auth/src/app/users/users --no-interactive
+```
+
+**Complete GraphQL Module Generation:**
+```sh
+# Generate all components for a new GraphQL module at once
+nx g @nx/nest:resolver --path=apps/jobber-auth/src/app/users/users && \
+nx g @nx/nest:service --path=apps/jobber-auth/src/app/users/users && \
+nx g @nx/nest:module --path=apps/jobber-auth/src/app/users/users
 ```
 
 **Using Shared GraphQL Components:**
 ```typescript
-// Import base model from the shared library
+// Example: apps/jobber-auth/src/app/users/models/users.model.ts
 import { AbstractModel } from '@jobber/nestjs';
+import { Field, ObjectType } from '@nestjs/graphql';
 
-// Extend the base model in your GraphQL entities
 @ObjectType()
 export class User extends AbstractModel {
   @Field()
@@ -247,6 +269,7 @@ export class AppModule {}
 - **Apollo Server integration**: Production-ready GraphQL server
 - **Subscription support**: Real-time GraphQL subscriptions
 - **Shared base models**: Use `AbstractModel` from `@jobber/nestjs` for consistent entity structure
+- **Modular architecture**: Generate complete GraphQL modules with resolvers, services, and models
 
 ### Prisma Commands Reference
 
@@ -274,3 +297,5 @@ The project includes automatic type generation as a build dependency:
 - GraphQL playground will be available at `/graphql` endpoint in development mode
 - Libraries are created in the `libs/` directory and use import paths like `@jobber/library-name`
 - Run `nx test <library-name>` to test libraries independently
+- Create GraphQL models in `models/` subdirectories for better organization
+- Always extend `AbstractModel` for consistent GraphQL entity structure
