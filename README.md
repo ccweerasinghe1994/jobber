@@ -213,6 +213,14 @@ npm install bcryptjs class-transformer class-validator
 npm install --save-dev @types/bcryptjs
 ```
 
+### Configuration Management
+
+For environment configuration and validation, install:
+
+```sh
+npm install @nestjs/config
+```
+
 ### Development Workflow Tools
 
 For Git hooks, linting, and formatting automation, install:
@@ -243,6 +251,7 @@ npx husky init
 - **class-transformer**: Object transformation utilities
 - **class-validator**: Validation decorators for DTOs
 - **@types/bcryptjs**: TypeScript definitions for bcryptjs
+- **@nestjs/config**: Configuration module for environment variables
 - **husky**: Git hooks automation tool
 - **lint-staged**: Pre-commit linting and formatting tool
 
@@ -361,17 +370,19 @@ The GraphQL module is configured in `apps/jobber-auth/src/app/app.module.ts` wit
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
     PrismaModule,
-    UsersModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: true,
       driver: ApolloDriver,
     }),
+    UsersModule,
+    ConfigModule,
   ],
 })
 export class AppModule {}
@@ -381,12 +392,21 @@ export class AppModule {}
 
 - `autoSchemaFile: true` - Automatically generates GraphQL schema from TypeScript decorators
 - `driver: ApolloDriver` - Uses Apollo Server as the GraphQL server implementation
+- `ConfigModule` - Enables environment variable configuration throughout the application
+
+**Environment Configuration Features:**
+
+- **Type-safe configuration**: Uses `ConfigService.getOrThrow()` to ensure required environment variables are present
+- **Automatic .env loading**: ConfigModule automatically loads `.env` files in development
+- **Configuration validation**: Throws errors if required configuration is missing
+- **Port configuration**: Application port is configurable via `AUTH_PORT` environment variable
 
 **Application Setup:**
 
 ```typescript
-// main.ts - Global validation setup
+// main.ts - Global validation setup with ConfigService
 import { Logger, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 
@@ -395,10 +415,12 @@ async function bootstrap() {
   const globalPrefix = 'api';
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.setGlobalPrefix(globalPrefix);
-  const port = process.env.PORT || 3000;
+  const port = app.get(ConfigService).getOrThrow('AUTH_PORT');
   await app.listen(port);
   Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
 }
+
+bootstrap();
 ```
 
 ### GraphQL Features
@@ -420,22 +442,53 @@ async function bootstrap() {
 
 ### Database Setup
 
-1. Ensure your database connection is configured in `apps/jobber-auth/prisma/schema.prisma`
-2. Run the initial migration: `nx run jobber-auth:migrate-prisma --name="init"`
-3. Generate types: `nx run jobber-auth:generate-types`
+1. **Environment Configuration**: Copy the environment template and configure your settings:
+
+   ```sh
+   cp .env.template .env
+   ```
+
+2. **Configure Environment Variables** in `.env`:
+
+   ```bash
+   # Database connection for the auth service
+   AUTH_DATABASE_URL=postgresql://username:password@localhost:5432/jobber_auth
+
+   # Port for the auth service
+   AUTH_PORT=3000
+
+   # Nx configuration (optional)
+   NX_NATIVE_COMMAND_RUNNER=false
+   ```
+
+3. **Database Connection**: Ensure your database connection is configured in `apps/jobber-auth/prisma/schema.prisma`
+
+4. **Run Initial Migration**:
+
+   ```sh
+   nx run jobber-auth:migrate-prisma --name="init"
+   ```
+
+5. **Generate Types**:
+   ```sh
+   nx run jobber-auth:generate-types
+   ```
 
 ### Project Configuration
 
 The project includes automatic type generation as a build dependency:
 
 - The `build` target depends on `generate-types`
-- This ensures Prisma client types are always up-to-date before building
+- The `test` target depends on `generate-types` for consistent type definitions
+- The `serve` target has `runBuildTargetDependencies: true` to ensure all dependencies are built
+- This ensures Prisma client types are always up-to-date before building, testing, or serving
 
 ### Notes
 
 - All Prisma commands run in the `apps/jobber-auth` directory context
 - Migration names should be descriptive and use lowercase with underscores
 - Always generate types after schema changes to keep TypeScript definitions up to date
+- Copy `.env.template` to `.env` and configure your environment variables before starting development
 - Use `--no-interactive` flag with generators for automation in scripts
 - GraphQL playground will be available at `/graphql` endpoint in development mode
 - Libraries are created in the `libs/` directory and use import paths like `@jobber/library-name`
@@ -447,6 +500,7 @@ The project includes automatic type generation as a build dependency:
 - Use `@IsEmail()`, `@IsStrongPassword()` and other class-validator decorators for input validation
 - Password hashing is automatically handled in the service layer using bcryptjs
 - Global validation is enabled with `ValidationPipe({ whitelist: true })` to strip unknown properties
+- The application uses ConfigService for type-safe environment variable access
 
 ## Git Workflow and Code Quality
 
