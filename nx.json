@@ -15,6 +15,14 @@
     "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
   },
   "nxCloudId": "687c4eab74a6c0298b4fc572",
+  "targetDefaults": {
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prettier --write {projectRoot}/**/*.{ts,tsx,js,jsx,json,md}"
+      }
+    }
+  },
   "plugins": [
     {
       "plugin": "@nx/webpack/plugin",
@@ -38,6 +46,12 @@
         "targetName": "test"
       },
       "exclude": ["apps/jobber-auth-e2e/**/*"]
+    },
+    {
+      "plugin": "@nx/js",
+      "options": {
+        "analyzeSourceFiles": false
+      }
     }
   ]
 }
