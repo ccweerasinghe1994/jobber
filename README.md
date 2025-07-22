@@ -182,6 +182,11 @@ import { AbstractModel } from '@jobber/nestjs';
 **Available GraphQL Components:**
 - `AbstractModel`: Base model class with ID field for GraphQL entities
 
+**Important Notes:**
+- GraphQL `ID` type requires string values, even if your database uses numeric IDs
+- Always convert numeric database IDs to strings in your service methods
+- The `AbstractModel` uses `id: string` to ensure GraphQL compatibility
+
 ## GraphQL API
 
 This project includes GraphQL API capabilities using Apollo Server and NestJS GraphQL integration:
@@ -194,12 +199,25 @@ To install the GraphQL dependencies, run:
 npm i @nestjs/graphql @nestjs/apollo @apollo/server graphql
 ```
 
+### Additional Dependencies
+
+For complete authentication and validation functionality, also install:
+
+```sh
+npm i bcryptjs class-transformer class-validator
+npm i -D @types/bcryptjs
+```
+
 ### Dependencies Added
 
 - **@apollo/server**: Apollo Server for GraphQL
 - **@nestjs/apollo**: NestJS Apollo Server integration
 - **@nestjs/graphql**: NestJS GraphQL module
 - **graphql**: GraphQL implementation
+- **bcryptjs**: Password hashing library
+- **class-transformer**: Object transformation utilities
+- **class-validator**: Validation decorators for DTOs
+- **@types/bcryptjs**: TypeScript definitions for bcryptjs
 
 ### GraphQL Development
 
@@ -236,6 +254,74 @@ export class User extends AbstractModel {
   @Field()
   username: string;
 }
+
+// Example: DTO with validation - apps/jobber-auth/src/app/users/dto/create-user.input.ts
+import { Field, InputType } from '@nestjs/graphql';
+import { IsEmail, IsStrongPassword } from 'class-validator';
+
+@InputType()
+export class CreateUserInput {
+  @Field()
+  @IsEmail()
+  email: string;
+
+  @Field()
+  @IsStrongPassword()
+  password: string;
+}
+
+// Example: Service with ID type conversion and password hashing
+import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma-clients/jobber-auth';
+import { hash } from 'bcryptjs';
+import { PrismaService } from '../prisma/prisma.service';
+
+@Injectable()
+export class UsersService {
+  constructor(private readonly prismaService: PrismaService) {}
+
+  async createUser(data: Prisma.UserCreateInput) {
+    const user = await this.prismaService.user.create({
+      data: {
+        ...data,
+        password: await hash(data.password, 10), // Hash password
+      },
+    });
+    return {
+      ...user,
+      id: user.id.toString(), // Convert numeric ID to string for GraphQL
+    };
+  }
+
+  async findAll() {
+    const users = await this.prismaService.user.findMany();
+    return users.map(user => ({
+      ...user,
+      id: user.id.toString(), // Convert numeric ID to string for GraphQL
+    }));
+  }
+}
+
+// Example: Resolver with queries and mutations
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { CreateUserInput } from './dto/create-user.input';
+import { User } from './models/users.model';
+import { UsersService } from './users.service';
+
+@Resolver(() => User)
+export class UsersResolver {
+  constructor(private readonly usersService: UsersService) {}
+
+  @Query(() => [User], { name: 'users' })
+  async getUsers() {
+    return this.usersService.findAll();
+  }
+
+  @Mutation(() => User)
+  async createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
+    return this.usersService.createUser(createUserInput);
+  }
+}
 ```
 
 ### GraphQL Configuration
@@ -243,12 +329,16 @@ export class User extends AbstractModel {
 The GraphQL module is configured in `apps/jobber-auth/src/app/app.module.ts` with:
 
 ```typescript
+import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { PrismaModule } from './prisma/prisma.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
     PrismaModule,
+    UsersModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: true,
       driver: ApolloDriver
@@ -262,6 +352,24 @@ export class AppModule {}
 - `autoSchemaFile: true` - Automatically generates GraphQL schema from TypeScript decorators
 - `driver: ApolloDriver` - Uses Apollo Server as the GraphQL server implementation
 
+**Application Setup:**
+```typescript
+// main.ts - Global validation setup
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app/app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  const globalPrefix = 'api';
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  app.setGlobalPrefix(globalPrefix);
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
+}
+```
+
 ### GraphQL Features
 
 - **Code-first approach**: Define your GraphQL schema using TypeScript decorators
@@ -270,6 +378,9 @@ export class AppModule {}
 - **Subscription support**: Real-time GraphQL subscriptions
 - **Shared base models**: Use `AbstractModel` from `@jobber/nestjs` for consistent entity structure
 - **Modular architecture**: Generate complete GraphQL modules with resolvers, services, and models
+- **Input validation**: Built-in validation using `class-validator` decorators
+- **Password security**: Automatic password hashing with bcryptjs
+- **Global validation**: Request validation with `ValidationPipe`
 
 ### Prisma Commands Reference
 
@@ -299,3 +410,8 @@ The project includes automatic type generation as a build dependency:
 - Run `nx test <library-name>` to test libraries independently
 - Create GraphQL models in `models/` subdirectories for better organization
 - Always extend `AbstractModel` for consistent GraphQL entity structure
+- **Important**: Convert numeric database IDs to strings in service methods for GraphQL compatibility
+- GraphQL `ID` scalar type only accepts string values, not numbers
+- Use `@IsEmail()`, `@IsStrongPassword()` and other class-validator decorators for input validation
+- Password hashing is automatically handled in the service layer using bcryptjs
+- Global validation is enabled with `ValidationPipe({ whitelist: true })` to strip unknown properties
