@@ -4,12 +4,11 @@
 
 ✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/nest?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/nest?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
 
 ## Finish your CI setup
 
 [Click here to finish setting up your workspace!](https://cloud.nx.app/connect/ieyKQdpFWo)
-
 
 ## Run tasks
 
@@ -58,6 +57,7 @@ npx nx g @nx/node:lib mylib
 ```
 
 **NestJS Library Examples:**
+
 ```sh
 # Basic NestJS library
 npx nx generate @nx/nest:library --name=shared-utils --directory=libs/shared-utils --unitTestRunner=jest --no-interactive
@@ -73,7 +73,6 @@ You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx 
 
 [Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 
-
 [Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 
 ## Install Nx Console
@@ -86,12 +85,13 @@ Nx Console is an editor extension that enriches your developer experience. It le
 
 Learn more:
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/nest?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
+- [Learn more about this workspace setup](https://nx.dev/nx-api/nest?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 - [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 - [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 - [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
 
 And join the Nx community:
+
 - [Discord](https://go.nx.dev/community)
 - [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
 - [Our Youtube channel](https://www.youtube.com/@nxdevtools)
@@ -110,6 +110,7 @@ nx run jobber-auth:migrate-prisma --name="migration_name"
 ```
 
 Examples:
+
 ```sh
 # Initial database setup
 nx run jobber-auth:migrate-prisma --name="init"
@@ -148,10 +149,11 @@ npx nx generate @nx/nest:resolver --path=apps/jobber-auth/src/app/resolver-name/
 ```
 
 **Example: Complete User Module Generation**
+
 ```sh
 # Generate all components for a users module
 nx g @nx/nest:module --path=apps/jobber-auth/src/app/users/users
-nx g @nx/nest:service --path=apps/jobber-auth/src/app/users/users  
+nx g @nx/nest:service --path=apps/jobber-auth/src/app/users/users
 nx g @nx/nest:resolver --path=apps/jobber-auth/src/app/users/users
 
 # Then create your GraphQL model extending AbstractModel
@@ -174,15 +176,18 @@ import { AbstractModel } from '@jobber/nestjs';
 ```
 
 **Library Features:**
+
 - **Shared GraphQL models**: Base classes like `AbstractModel` for consistent entity structure
 - **Type-safe imports**: Import path `@jobber/nestjs` is automatically configured
 - **Jest testing**: Unit tests are set up automatically
 - **GraphQL decorators**: Ready-to-use GraphQL field decorators and object types
 
 **Available GraphQL Components:**
+
 - `AbstractModel`: Base model class with ID field for GraphQL entities
 
 **Important Notes:**
+
 - GraphQL `ID` type requires string values, even if your database uses numeric IDs
 - Always convert numeric database IDs to strings in your service methods
 - The `AbstractModel` uses `id: string` to ensure GraphQL compatibility
@@ -196,7 +201,7 @@ This project includes GraphQL API capabilities using Apollo Server and NestJS Gr
 To install the GraphQL dependencies, run:
 
 ```sh
-npm i @nestjs/graphql @nestjs/apollo @apollo/server graphql
+npm install @nestjs/graphql @nestjs/apollo @apollo/server graphql
 ```
 
 ### Additional Dependencies
@@ -204,8 +209,28 @@ npm i @nestjs/graphql @nestjs/apollo @apollo/server graphql
 For complete authentication and validation functionality, also install:
 
 ```sh
-npm i bcryptjs class-transformer class-validator
-npm i -D @types/bcryptjs
+npm install bcryptjs class-transformer class-validator
+npm install --save-dev @types/bcryptjs
+```
+
+### Development Workflow Tools
+
+For Git hooks, linting, and formatting automation, install:
+
+```sh
+npm install --save-dev husky lint-staged
+```
+
+After installation, set up the Git hooks:
+
+```sh
+# Initialize Husky
+npx husky init
+
+# The following files will be automatically created:
+# - .husky/pre-commit (contains: npx lint-staged --relative)
+# - .lintstagedrc (lint-staged configuration)
+# - package.json scripts.prepare field (runs husky on npm install)
 ```
 
 ### Dependencies Added
@@ -218,6 +243,8 @@ npm i -D @types/bcryptjs
 - **class-transformer**: Object transformation utilities
 - **class-validator**: Validation decorators for DTOs
 - **@types/bcryptjs**: TypeScript definitions for bcryptjs
+- **husky**: Git hooks automation tool
+- **lint-staged**: Pre-commit linting and formatting tool
 
 ### GraphQL Development
 
@@ -233,6 +260,7 @@ npx nx generate @nx/nest:module --path=apps/jobber-auth/src/app/users/users --no
 ```
 
 **Complete GraphQL Module Generation:**
+
 ```sh
 # Generate all components for a new GraphQL module at once
 nx g @nx/nest:resolver --path=apps/jobber-auth/src/app/users/users && \
@@ -241,6 +269,7 @@ nx g @nx/nest:module --path=apps/jobber-auth/src/app/users/users
 ```
 
 **Using Shared GraphQL Components:**
+
 ```typescript
 // Example: apps/jobber-auth/src/app/users/models/users.model.ts
 import { AbstractModel } from '@jobber/nestjs';
@@ -295,7 +324,7 @@ export class UsersService {
 
   async findAll() {
     const users = await this.prismaService.user.findMany();
-    return users.map(user => ({
+    return users.map((user) => ({
       ...user,
       id: user.id.toString(), // Convert numeric ID to string for GraphQL
     }));
@@ -341,18 +370,20 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: true,
-      driver: ApolloDriver
-    })
+      driver: ApolloDriver,
+    }),
   ],
 })
 export class AppModule {}
 ```
 
 **Configuration Options:**
+
 - `autoSchemaFile: true` - Automatically generates GraphQL schema from TypeScript decorators
 - `driver: ApolloDriver` - Uses Apollo Server as the GraphQL server implementation
 
 **Application Setup:**
+
 ```typescript
 // main.ts - Global validation setup
 import { Logger, ValidationPipe } from '@nestjs/common';
@@ -396,6 +427,7 @@ async function bootstrap() {
 ### Project Configuration
 
 The project includes automatic type generation as a build dependency:
+
 - The `build` target depends on `generate-types`
 - This ensures Prisma client types are always up-to-date before building
 
@@ -415,3 +447,78 @@ The project includes automatic type generation as a build dependency:
 - Use `@IsEmail()`, `@IsStrongPassword()` and other class-validator decorators for input validation
 - Password hashing is automatically handled in the service layer using bcryptjs
 - Global validation is enabled with `ValidationPipe({ whitelist: true })` to strip unknown properties
+
+## Git Workflow and Code Quality
+
+This project includes automated Git hooks for code quality enforcement using Husky and lint-staged.
+
+### Git Hooks Setup
+
+The project is configured with pre-commit hooks that automatically:
+
+- Run ESLint with auto-fix on TypeScript/JavaScript files
+- Format all files with Prettier
+- Only process staged files for optimal performance
+
+### Testing Git Hooks
+
+To test that your Git hooks are working correctly:
+
+**Method 1: Make a real change (Recommended)**
+
+```sh
+# Make a small change to test the hooks
+echo "// Test comment" >> apps/jobber-auth/src/main.ts
+git add .
+git commit -m "test: verify git hooks are working"
+
+# Remove the test comment afterwards
+git reset HEAD~1
+git checkout -- apps/jobber-auth/src/main.ts
+```
+
+**Method 2: Force empty commit**
+
+```sh
+git commit --allow-empty -m "test: verify git hooks with empty commit"
+```
+
+**Method 3: Use files with intentional formatting issues**
+
+```sh
+# Create a file with formatting issues
+echo "const  x =    1   ;   console.log(x)" > test-formatting.ts
+git add test-formatting.ts
+git commit -m "test: check auto-formatting"
+# The file will be automatically formatted before commit
+```
+
+### Understanding Git Hook Behavior
+
+- ✅ **"Prevented an empty git commit!" message**: This is **expected behavior** when no changes are made by linting/formatting tools
+- ✅ This means your hooks are working correctly - they ran successfully but found no issues to fix
+- ✅ Your code is already properly formatted and linted
+
+### Git Hook Configuration Files
+
+- `.husky/pre-commit`: Contains the command that runs before each commit
+- `.lintstagedrc`: Configuration for what tools run on which file types
+- `package.json`: Contains the "prepare" script that sets up Husky
+
+### Lint-staged Configuration
+
+Current configuration in `.lintstagedrc`:
+
+```json
+{
+  "*.{ts,tsx,js,jsx}": ["nx affected -t lint --fix --files"],
+  "*": ["nx format:write --files"]
+}
+```
+
+This configuration:
+
+- Runs ESLint with auto-fix on TypeScript and JavaScript files using Nx affected
+- Runs Prettier formatting on all files using Nx format
+- Only processes files that are staged for commit
+- Uses Nx's affected computation for optimal performance

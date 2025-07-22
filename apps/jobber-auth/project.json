@@ -16,9 +16,7 @@
           "args": ["--node-env=development"]
         }
       },
-      "dependsOn": [
-        "generate-types"
-      ]
+      "dependsOn": ["generate-types"]
     },
     "serve": {
       "continuous": true,
@@ -43,7 +41,7 @@
         "passWithNoTests": true
       }
     },
-    "generate-types":{
+    "generate-types": {
       "command": "prisma generate",
       "options": {
         "cwd": "apps/jobber-auth"
