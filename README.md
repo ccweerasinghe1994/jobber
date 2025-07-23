@@ -213,6 +213,14 @@ npm install bcryptjs class-transformer class-validator
 npm install --save-dev @types/bcryptjs
 ```
 
+### JWT Authentication
+
+For JWT-based authentication, install:
+
+```sh
+npm install @nestjs/jwt
+```
+
 ### Configuration Management
 
 For environment configuration and validation, install:
@@ -220,8 +228,6 @@ For environment configuration and validation, install:
 ```sh
 npm install @nestjs/config
 ```
-
-### Development Workflow Tools
 
 For Git hooks, linting, and formatting automation, install:
 
@@ -241,6 +247,8 @@ npx husky init
 # - package.json scripts.prepare field (runs husky on npm install)
 ```
 
+### Development Workflow Tools
+
 ### Dependencies Added
 
 - **@apollo/server**: Apollo Server for GraphQL
@@ -252,6 +260,7 @@ npx husky init
 - **class-validator**: Validation decorators for DTOs
 - **@types/bcryptjs**: TypeScript definitions for bcryptjs
 - **@nestjs/config**: Configuration module for environment variables
+- **@nestjs/jwt**: JWT authentication module for NestJS
 - **husky**: Git hooks automation tool
 - **lint-staged**: Pre-commit linting and formatting tool
 
@@ -373,6 +382,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -383,6 +393,7 @@ import { UsersModule } from './users/users.module';
     }),
     UsersModule,
     ConfigModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
@@ -400,6 +411,77 @@ export class AppModule {}
 - **Automatic .env loading**: ConfigModule automatically loads `.env` files in development
 - **Configuration validation**: Throws errors if required configuration is missing
 - **Port configuration**: Application port is configurable via `AUTH_PORT` environment variable
+- **JWT configuration**: JWT secret and expiration are configurable via environment variables
+
+## JWT Authentication
+
+The project includes JWT-based authentication using the `@nestjs/jwt` module:
+
+### JWT Module Configuration
+
+The JWT module is configured in `apps/jobber-auth/src/app/auth/auth.module.ts`:
+
+```typescript
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthResolver } from './auth.resolver';
+import { AuthService } from './auth.service';
+
+@Module({
+  imports: [
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => {
+        return {
+          secret: configService.getOrThrow('JWT_SECRET'),
+          signOptions: {
+            expiresIn: configService.getOrThrow('AUTH_JWT_EXPIRATION_IN_MS'),
+          },
+        };
+      },
+      inject: [ConfigService],
+    }),
+  ],
+  providers: [AuthResolver, AuthService],
+})
+export class AuthModule {}
+```
+
+### JWT Configuration Features
+
+- **Async Configuration**: Uses `registerAsync()` for dynamic configuration with environment variables
+- **Type-safe Environment Variables**: Uses `ConfigService.getOrThrow()` to ensure JWT configuration is present
+- **Configurable Secret**: JWT signing secret loaded from `JWT_SECRET` environment variable
+- **Configurable Expiration**: Token expiration time loaded from `AUTH_JWT_EXPIRATION_IN_MS` environment variable
+- **GraphQL Integration**: Ready for use with GraphQL resolvers and authentication guards
+
+### JWT Usage in Services
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+
+@Injectable()
+export class AuthService {
+  constructor(private readonly jwtService: JwtService) {}
+
+  async generateToken(payload: any) {
+    return this.jwtService.sign(payload);
+  }
+
+  async verifyToken(token: string) {
+    return this.jwtService.verify(token);
+  }
+}
+```
+
+### JWT Environment Variables
+
+Required environment variables for JWT authentication:
+
+- `JWT_SECRET`: Secret key for signing JWT tokens (minimum 32 characters recommended)
+- `AUTH_JWT_EXPIRATION_IN_MS`: Token expiration time in milliseconds (e.g., 3600000 for 1 hour)
 
 **Application Setup:**
 
@@ -457,6 +539,10 @@ bootstrap();
    # Port for the auth service
    AUTH_PORT=3000
 
+   # JWT Configuration
+   JWT_SECRET=your-super-secret-jwt-signing-key-min-32-characters
+   AUTH_JWT_EXPIRATION_IN_MS=3600000
+
    # Nx configuration (optional)
    NX_NATIVE_COMMAND_RUNNER=false
    ```
@@ -501,6 +587,8 @@ The project includes automatic type generation as a build dependency:
 - Password hashing is automatically handled in the service layer using bcryptjs
 - Global validation is enabled with `ValidationPipe({ whitelist: true })` to strip unknown properties
 - The application uses ConfigService for type-safe environment variable access
+- JWT authentication is configured with environment-based secrets and expiration times
+- Use strong, randomly generated secrets for JWT_SECRET in production environments
 
 ## Git Workflow and Code Quality
 
