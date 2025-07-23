@@ -410,7 +410,7 @@ export class AppModule {}
 - **Type-safe configuration**: Uses `ConfigService.getOrThrow()` to ensure required environment variables are present
 - **Automatic .env loading**: ConfigModule automatically loads `.env` files in development
 - **Configuration validation**: Throws errors if required configuration is missing
-- **Port configuration**: Application port is configurable via `AUTH_PORT` environment variable
+- **Port configuration**: Application port is configurable via `PORT` environment variable
 - **JWT configuration**: JWT secret and expiration are configurable via environment variables
 
 ## JWT Authentication
@@ -436,7 +436,7 @@ import { AuthService } from './auth.service';
         return {
           secret: configService.getOrThrow('JWT_SECRET'),
           signOptions: {
-            expiresIn: configService.getOrThrow('AUTH_JWT_EXPIRATION_IN_MS'),
+            expiresIn: configService.getOrThrow('JWT_EXPIRATION_IN_MS'),
           },
         };
       },
@@ -453,7 +453,7 @@ export class AuthModule {}
 - **Async Configuration**: Uses `registerAsync()` for dynamic configuration with environment variables
 - **Type-safe Environment Variables**: Uses `ConfigService.getOrThrow()` to ensure JWT configuration is present
 - **Configurable Secret**: JWT signing secret loaded from `JWT_SECRET` environment variable
-- **Configurable Expiration**: Token expiration time loaded from `AUTH_JWT_EXPIRATION_IN_MS` environment variable
+- **Configurable Expiration**: Token expiration time loaded from `JWT_EXPIRATION_IN_MS` environment variable
 - **GraphQL Integration**: Ready for use with GraphQL resolvers and authentication guards
 
 ### JWT Usage in Services
@@ -481,7 +481,7 @@ export class AuthService {
 Required environment variables for JWT authentication:
 
 - `JWT_SECRET`: Secret key for signing JWT tokens (minimum 32 characters recommended)
-- `AUTH_JWT_EXPIRATION_IN_MS`: Token expiration time in milliseconds (e.g., 3600000 for 1 hour)
+- `JWT_EXPIRATION_IN_MS`: Token expiration time in milliseconds (e.g., 3600000 for 1 hour)
 
 **Application Setup:**
 
@@ -497,7 +497,7 @@ async function bootstrap() {
   const globalPrefix = 'api';
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.setGlobalPrefix(globalPrefix);
-  const port = app.get(ConfigService).getOrThrow('AUTH_PORT');
+  const port = app.get(ConfigService).getOrThrow('PORT');
   await app.listen(port);
   Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
 }
@@ -524,25 +524,33 @@ bootstrap();
 
 ### Database Setup
 
-1. **Environment Configuration**: Copy the environment template and configure your settings:
+1. **Environment Configuration**: Copy the environment template for the auth service and configure your settings:
 
    ```sh
+   # Copy the environment template for the auth service
+   cp apps/jobber-auth/.env.template apps/jobber-auth/.env
+
+   # Copy the root environment template (optional, for Nx configuration)
    cp .env.template .env
    ```
 
-2. **Configure Environment Variables** in `.env`:
+2. **Configure Environment Variables** in `apps/jobber-auth/.env`:
 
    ```bash
    # Database connection for the auth service
-   AUTH_DATABASE_URL=postgresql://username:password@localhost:5432/jobber_auth
+   DATABASE_URL=postgresql://username:password@localhost:5432/jobber_auth
 
    # Port for the auth service
-   AUTH_PORT=3000
+   PORT=3000
 
    # JWT Configuration
    JWT_SECRET=your-super-secret-jwt-signing-key-min-32-characters
-   AUTH_JWT_EXPIRATION_IN_MS=3600000
+   JWT_EXPIRATION_IN_MS=3600000
+   ```
 
+   **Optional**: Configure root-level environment variables in `.env`:
+
+   ```bash
    # Nx configuration (optional)
    NX_NATIVE_COMMAND_RUNNER=false
    ```
@@ -574,7 +582,7 @@ The project includes automatic type generation as a build dependency:
 - All Prisma commands run in the `apps/jobber-auth` directory context
 - Migration names should be descriptive and use lowercase with underscores
 - Always generate types after schema changes to keep TypeScript definitions up to date
-- Copy `.env.template` to `.env` and configure your environment variables before starting development
+- Copy `apps/jobber-auth/.env.template` to `apps/jobber-auth/.env` and configure your environment variables before starting development
 - Use `--no-interactive` flag with generators for automation in scripts
 - GraphQL playground will be available at `/graphql` endpoint in development mode
 - Libraries are created in the `libs/` directory and use import paths like `@jobber/library-name`

@@ -12,7 +12,7 @@ import { AuthService } from './auth.service';
         return {
           secret: configService.getOrThrow('JWT_SECRET'),
           signOptions: {
-            expiresIn: configService.getOrThrow('AUTH_JWT_EXPIRATION_IN_MS'),
+            expiresIn: configService.getOrThrow('JWT_EXPIRATION_IN_MS'),
           },
         };
       },
