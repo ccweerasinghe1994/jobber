@@ -34,7 +34,7 @@
     "@nx/nest": "21.3.0",
     "@nx/node": "21.3.0",
     "@nx/web": "21.3.0",
-    "@nx/webpack": "21.3.0",
+    "@nx/webpack": "21.6.10",
     "@nx/workspace": "21.3.0",
     "@swc-node/register": "~1.9.1",
     "@swc/core": "~1.5.7",
